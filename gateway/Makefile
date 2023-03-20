@@ -1,5 +1,5 @@
 run:
-	go run main.go
+	source .env && go run main.go
 
 build:
 	go build -o bin/gateway
