@@ -18,24 +18,26 @@ const (
 
 // ------------------------------------MIDDLEWARES------------------------------------
 
-func (p *ScholarLabs) jwtMiddleware(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
+func (p *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
 
-	if len(authHeader) <= len(authSchema) {
-		httperr.Handle(c, httperr.New("missing or invalid JWT token", http.StatusUnauthorized))
-		return
+		if len(authHeader) <= len(authSchema) {
+			httperr.Handle(c, httperr.New("missing or invalid JWT token", http.StatusUnauthorized))
+			return
+		}
+
+		token := authHeader[len(authSchema):]
+		viper.GetString("")
+		uuid, err := p.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
+		if err != nil {
+			httperr.Handle(c, httperr.WrapHttp(err, "could not validate JWT token", http.StatusUnauthorized))
+			return
+		}
+
+		c.Set(uuidKey, uuid)
+		c.Next()
 	}
-
-	token := authHeader[len(authSchema):]
-	viper.GetString("")
-	uuid, err := p.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
-	if err != nil {
-		httperr.Handle(c, httperr.WrapHttp(err, "could not validate JWT token", http.StatusUnauthorized))
-		return
-	}
-
-	c.Set(uuidKey, uuid)
-	c.Next()
 }
 
 func (p *ScholarLabs) corsMiddleware(c *gin.Context) {
