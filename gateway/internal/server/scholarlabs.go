@@ -1,6 +1,8 @@
 package server
 
 import (
+	"log"
+
 	"github.com/FoxFurry/scholarlabs/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/gateway/internal/scholarlabs"
 	"github.com/FoxFurry/scholarlabs/gateway/internal/util"
@@ -15,6 +17,8 @@ type ScholarLabs struct {
 }
 
 func New(cfg config.Config) (*ScholarLabs, error) {
+	gin.SetMode(gin.ReleaseMode)
+
 	ginEngine := gin.Default()
 
 	p := ScholarLabs{
@@ -39,5 +43,6 @@ func New(cfg config.Config) (*ScholarLabs, error) {
 }
 
 func (p *ScholarLabs) Run() {
+	log.Printf("Serving gateway on [%s]", p.cfg.GatewayHost)
 	p.gEng.Run(p.cfg.GatewayHost)
 }
