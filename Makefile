@@ -7,9 +7,8 @@ push-all-latest:
 	docker push foxfurry/scholarlabs-gateway
 
 configmap:
-	kubectl delete configmap scholarlabs
-	kubectl create configmap scholarlabs --from-env-file=.env
+	$(eval ENVHASH := $(shell openssl dgst -sha256 -hex .env | awk '{print $$2}'))
+	kubectl create configmap scholarlabs-$(ENVHASH) --from-env-file=.env -n=scholarlabs
 
 run-kube:
-	kubectl delete pods --ignore-not-found=true --all
-	kubectl apply -R -f ./infra
+	kubectl create -R -f ./infra -n=scholarlabs
