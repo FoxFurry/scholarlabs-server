@@ -8,5 +8,8 @@ spec:
   containers:
     - name: gateway
       image: foxfurry/scholarlabs-gateway
+      envFrom:
+        - configMapRef:
+            name: scholarlabs
       ports:
         - containerPort: 8000
