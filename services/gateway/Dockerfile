@@ -5,14 +5,14 @@ WORKDIR /app
 COPY ./go.* ./
 RUN go mod download
 
-COPY ./gateway ./gateway
+COPY ./services/gateway ./services/gateway
 
-RUN cd gateway && go build -v -o server
+RUN cd services/gateway && go build -v -o server
 
 
 FROM debian:buster-slim
 
-COPY --from=builder /app/gateway/server /app/server
+COPY --from=builder /app/services/gateway/server /app/server
 
 EXPOSE 8000
 
