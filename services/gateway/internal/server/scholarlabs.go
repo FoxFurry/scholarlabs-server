@@ -1,12 +1,11 @@
 package server
 
 import (
-	"log"
-
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/scholarlabs"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/util"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type ScholarLabs struct {
@@ -14,9 +13,10 @@ type ScholarLabs struct {
 	gEng    *gin.Engine
 	jwt     util.JWTProvider
 	cfg     config.Config
+	lg      *logrus.Logger
 }
 
-func New(cfg config.Config) (*ScholarLabs, error) {
+func New(cfg config.Config, logger *logrus.Logger) (*ScholarLabs, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	ginEngine := gin.Default()
@@ -26,6 +26,7 @@ func New(cfg config.Config) (*ScholarLabs, error) {
 		gEng:    ginEngine,
 		jwt:     util.NewJWT(),
 		cfg:     cfg,
+		lg:      logger,
 	}
 
 	v1 := ginEngine.Group("/v1")
@@ -43,6 +44,5 @@ func New(cfg config.Config) (*ScholarLabs, error) {
 }
 
 func (p *ScholarLabs) Run() {
-	log.Printf("Serving gateway on [%s]", p.cfg.GatewayHost)
-	p.gEng.Run(p.cfg.GatewayHost)
+	p.gEng.Run(p.cfg.Host)
 }
