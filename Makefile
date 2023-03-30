@@ -1,15 +1,16 @@
-ENVHASH := $(shell openssl dgst -sha256 -hex .env | awk '{print $$2}')
+CONFIGHASH := $(shell openssl dgst -sha256 -hex .env | awk '{print $$2}')
 
-all: build-all push-all-latest configmap run-kube
+all: build-all push-all-latest run-kube
+
+# All services
 
 build-all:
-	docker build -t foxfurry/scholarlabs-gateway -f ./gateway/Dockerfile .
+
 
 push-all-latest:
-	docker push foxfurry/scholarlabs-gateway
 
-configmap:
-	kubectl create configmap scholarlabs-$(ENVHASH) --from-env-file=.env -n=scholarlabs
+
+# Kubernetes
 
 run-kube:
 	./scripts/run-kube.sh
