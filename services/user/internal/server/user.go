@@ -14,7 +14,7 @@ import (
 func (p *ScholarLabs) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
 	credentials, err := p.service.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		p.lg.WithError(err).Error("failed to get user by email")
+		p.lg.WithError(err).WithField("user email", req.Email).Error("failed to get user by email")
 		return nil, err
 	}
 
@@ -27,6 +27,7 @@ func (p *ScholarLabs) Login(ctx context.Context, req *proto.LoginRequest) (*prot
 		issuer,
 		[]byte(p.cfg.TokenSecret))
 	if err != nil {
+		p.lg.WithError(err).WithField("user email", req.Email).Error("failed to generate JWT token")
 		return nil, err
 	}
 
@@ -38,15 +39,17 @@ func (p *ScholarLabs) Login(ctx context.Context, req *proto.LoginRequest) (*prot
 func (p *ScholarLabs) Register(ctx context.Context, req *proto.RegisterRequest) (*emptypb.Empty, error) {
 	user, _ := p.service.GetUserByEmail(ctx, req.Email)
 	if user != nil {
+		p.lg.WithField("user email", req.Email).Error("user already exists")
 		return nil, fmt.Errorf("user already exists")
 	}
 
 	_, err := p.service.CreateNewUser(ctx, store.User{
-		Email: req.Email,
-
+		Email:    req.Email,
+		Username: req.Username,
 		Password: req.Password,
 	})
 	if err != nil {
+		p.lg.WithError(err).WithField("user email", req.Email).Error("failed to create new user")
 		return nil, err
 	}
 
