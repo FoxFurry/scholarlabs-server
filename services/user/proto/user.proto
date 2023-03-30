@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package scholarlabs.services.user;
+
+option go_package = "github.com/FoxFurry/scholarlabs/services/user/proto";
+
+import "google/protobuf/empty.proto";
+
+service User {
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Register(RegisterRequest) returns (google.protobuf.Empty) {}
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string username = 2;
+  string password = 3;
+}
