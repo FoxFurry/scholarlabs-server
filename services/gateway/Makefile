@@ -1,11 +1,11 @@
-run:
-	source .env && go run main.go
-
 build:
-	go build -o bin/gateway
+	docker build -t foxfurry/scholarlabs-gateway -f ./services/gateway/Dockerfile .
 
-test:
-	go test ./...
+run: build
+	docker run --env-file=.env foxfurry/scholarlabs-gateway
 
-totallines:
-	find . -name '*.go' | xargs wc -l
+push:
+	docker push foxfurry/scholarlabs-gateway
+
+configmap:
+	kubectl create configmap scholarlabs-gateway-$(CONFIGHASH) --from-env-file=.env -n=scholarlabs
