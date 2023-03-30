@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/FoxFurry/scholarlabs/gateway/internal/config"
-	"github.com/FoxFurry/scholarlabs/gateway/internal/server"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/server"
 	"github.com/caarlos0/env/v7"
 	"github.com/spf13/cobra"
 )
