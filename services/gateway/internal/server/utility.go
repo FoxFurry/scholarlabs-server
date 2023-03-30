@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/FoxFurry/scholarlabs/gateway/internal/httperr"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/httperr"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )

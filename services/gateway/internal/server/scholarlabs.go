@@ -3,9 +3,9 @@ package server
 import (
 	"log"
 
-	"github.com/FoxFurry/scholarlabs/gateway/internal/config"
-	"github.com/FoxFurry/scholarlabs/gateway/internal/scholarlabs"
-	"github.com/FoxFurry/scholarlabs/gateway/internal/util"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/scholarlabs"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/util"
 	"github.com/gin-gonic/gin"
 )
 

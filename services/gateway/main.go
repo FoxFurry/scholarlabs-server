@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/FoxFurry/scholarlabs/gateway/cmd"
+	"github.com/FoxFurry/scholarlabs/services/gateway/cmd"
 )
 
 func main() {
