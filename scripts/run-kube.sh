@@ -1,7 +1,8 @@
 #/bin/sh
-CONFIGHASH=$(openssl dgst -sha256 -hex .env | awk '{print $2}')
+GATEWAYCONFIGHASH=$(openssl dgst -sha256 -hex ./services/gateway/.env | awk '{print $2}')
+USERCONFIGHASH=$(openssl dgst -sha256 -hex ./services/user/.env | awk '{print $2}')
 
 for f in $(find . -name '*.yaml');
 do
-  CONFIGHASH=${CONFIGHASH} envsubst < $f | kubectl apply -n=scholarlabs -f -;
+  GATEWAYCONFIGHASH=${GATEWAYCONFIGHASH} USERCONFIGHASH=${USERCONFIGHASH} envsubst < $f | kubectl apply -n=scholarlabs -f -;
 done
