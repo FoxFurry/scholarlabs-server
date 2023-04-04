@@ -1,12 +1,11 @@
 package config
 
 type Config struct {
-	Environment string `env:"ENV"`
+	Environment string `env:"ENV" envDefault:"development"`
 
-	Host       string `env:"HOST"`
-	SigningKey string `env:"SIGNING_KEY"`
+	Host string `env:"HOST" envDefault:"0.0.0.0:8000"`
 
-	MarketplaceServiceBaseURL string `env:"MARKETPLACE_BASE_URL"`
-	UserServiceBaseURL        string `env:"USER_BASE_URL"`
-	CourseServiceBaseURL      string `env:"COURSE_BASE_URL"`
+	UserServiceBaseURL        string `env:"USER_BASE_URL" envDefault:"localhost:22000"`
+	MarketplaceServiceBaseURL string `env:"MARKETPLACE_BASE_URL" envDefault:"127.0.0.1:22001"`
+	CourseServiceBaseURL      string `env:"COURSE_BASE_URL" envDefault:"127.0.0.1:22002"`
 }

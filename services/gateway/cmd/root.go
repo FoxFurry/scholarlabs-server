@@ -8,6 +8,7 @@ import (
 
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/server"
+	"github.com/FoxFurry/scholarlabs/services/user/client"
 	"github.com/caarlos0/env/v7"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -29,7 +30,12 @@ var rootCmd = &cobra.Command{
 			log.WithError(err).Fatal("failed to parse environment variables")
 		}
 
-		gateway, err := server.New(cfg, log)
+		user, err := client.NewUserClient(cfg.UserServiceBaseURL)
+		if err != nil {
+			log.WithError(err).Fatal("failed to connect to user service")
+		}
+
+		gateway, err := server.New(cfg, log, user)
 		if err != nil {
 			log.WithError(err).Fatal("failed to create a gateway server")
 		}
