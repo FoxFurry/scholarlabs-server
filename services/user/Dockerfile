@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./go.* ./
 RUN go mod download
 
-COPY ./services/user ./services/user
+COPY . .
 
 RUN cd services/user && go build -v -o server
 
@@ -14,6 +14,6 @@ FROM debian:buster-slim
 
 COPY --from=builder /app/services/user/server /app/server
 
-EXPOSE 8000
+EXPOSE 22000
 
 CMD ["/app/server"]
