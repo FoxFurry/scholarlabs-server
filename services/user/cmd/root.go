@@ -24,7 +24,7 @@ const serviceName = "user"
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "user",
-	Short: "Run HTTP(s) server for gateway service",
+	Short: "Run HTTP(s) server for user service",
 	Run: func(cmd *cobra.Command, args []string) {
 		log := logrus.New()
 		log.SetFormatter(&ecslogrus.Formatter{})
