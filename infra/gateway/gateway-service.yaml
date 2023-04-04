@@ -8,4 +8,5 @@ spec:
     component: gateway
   ports:
     - port: 8000
+      protocol: TCP
       targetPort: 8000
