@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./go.* ./
 RUN go mod download
 
-COPY ./services/gateway ./services/gateway
+COPY . .
 
 RUN cd services/gateway && go build -v -o server
 
