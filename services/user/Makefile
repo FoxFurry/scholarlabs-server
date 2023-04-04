@@ -1,3 +1,5 @@
+CONFIGHASH := $(shell openssl dgst -sha256 -hex .env | awk '{print $$2}')
+
 build:
 	docker build -t foxfurry/scholarlabs-user -f ./services/user/Dockerfile .
 
