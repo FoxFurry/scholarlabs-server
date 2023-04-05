@@ -2,7 +2,11 @@
 GATEWAYCONFIGHASH=$(openssl dgst -sha256 -hex ./services/gateway/.env | awk '{print $2}')
 USERCONFIGHASH=$(openssl dgst -sha256 -hex ./services/user/.env | awk '{print $2}')
 
-for f in $(find . -name '*.yaml');
+for f in $(find ./infra/k8s/ -name '*.yaml');
 do
-  GATEWAYCONFIGHASH=${GATEWAYCONFIGHASH} USERCONFIGHASH=${USERCONFIGHASH} envsubst < $f | kubectl apply -n=scholarlabs -f -;
+  GATEWAYCONFIGHASH=${GATEWAYCONFIGHASH} \
+  USERCONFIGHASH=${USERCONFIGHASH} \
+  envsubst < $f | kubectl apply -f -;
 done
+
+helm install --values ./infra/helm/values.yaml --namespace=loki-stack --create-namespace loki grafana/loki-stack
