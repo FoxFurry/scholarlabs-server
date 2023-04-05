@@ -18,6 +18,8 @@ run-kube:
 nuke:
 	kubectl delete namespace scholarlabs
 	kubectl create namespace scholarlabs
+	kubectl delete namespace loki-stack
+	kubectl create namespace loki-stack
 	$(MAKE) configmap-all
 	$(MAKE) run-kube
 
