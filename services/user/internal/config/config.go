@@ -7,7 +7,7 @@ type Config struct {
 	DBPort string `env:"DB_PORT" envDefault:"3306"`
 	DBPass string `env:"DB_PASS" envDefault:"test"`
 	DBUser string `env:"DB_USER" envDefault:"user"`
-	DBName string `env:"DB_NAME" envDefault:"user"`
+	DBName string `env:"DB_NAME" envDefault:"scholarlabs"`
 
 	Host string `env:"HOST" envDefault:"0.0.0.0:22000"`
 
