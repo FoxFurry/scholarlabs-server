@@ -1,10 +1,10 @@
 package server
 
 import (
+	"github.com/FoxFurry/scholarlabs/services/common/jwt"
 	"github.com/FoxFurry/scholarlabs/services/user/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/user/internal/service"
 	"github.com/FoxFurry/scholarlabs/services/user/internal/store"
-	"github.com/FoxFurry/scholarlabs/services/user/internal/util"
 	"github.com/FoxFurry/scholarlabs/services/user/proto"
 	"github.com/sirupsen/logrus"
 )
@@ -16,7 +16,7 @@ const (
 
 type ScholarLabs struct {
 	service service.Service
-	jwt     util.JWTProvider
+	jwt     jwt.JWTProvider
 	cfg     config.Config
 	lg      *logrus.Logger
 	proto.UnimplementedUserServer
@@ -25,7 +25,7 @@ type ScholarLabs struct {
 func New(cfg config.Config, ds store.DataStore, logger *logrus.Logger) (*ScholarLabs, error) {
 	return &ScholarLabs{
 		service: service.New(ds),
-		jwt:     util.NewJWT(),
+		jwt:     jwt.NewJWT(),
 		cfg:     cfg,
 		lg:      logger,
 	}, nil
