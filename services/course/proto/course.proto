@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package scholarlabs.services.course;
+
+option go_package = "github.com/FoxFurry/scholarlabs/services/course/proto";
+
+import "google/protobuf/empty.proto";
+
+service Courses {
+
+  // For users
+  rpc Enroll(EnrollRequest) returns (google.protobuf.Empty) {}      // Takes user id and course id and enrolls them
+  rpc Unenroll(UnenrollRequest) returns (google.protobuf.Empty) {}  // Takes user id and course id and unenrolls them
+
+  rpc GetActiveCoursesForUser(GetActiveCoursesForUserRequest) returns (GetActiveCoursesForUserResponse) {} // Get all courses user is enrolled to
+  // rpc GetCourseProgress(GetCourseProgressRequest) returns (GetCourseProgressResponse) {}
+
+  // For teachers
+  rpc CreateCourse(CreateCourseRequest) returns (google.protobuf.Empty) {} // Create a course
+  // rpc EditCourse(EditCourseRequest) returns (EditCourseResponse) {}     // Edit a course (idempotent, like PUT in REST)
+
+  // General
+  rpc GetCourseInfo(GetCourseInfoRequest) returns (GetCourseInfoResponse) {} // Get generic course info (material, list of assignments and so on)
+  rpc GetAllPublicCourses(google.protobuf.Empty) returns (GetAllPublicCoursesResponse) {}
+}
+
+message CourseShort {
+  string UUID = 1;
+  string AuthorUUID = 2;
+  string Title = 3;
+  string Description = 4;
+}
+
+message CourseFull {
+  CourseShort metadata = 1;
+  string Text = 2;
+}
+
+
+message EnrollRequest {
+  string UserUUID = 1;
+  string CourseUUID = 2;
+}
+
+
+
+message UnenrollRequest {
+  string UserUUID = 1;
+  string CourseUUID = 2;
+}
+
+
+
+message GetActiveCoursesForUserRequest {
+  string UserUUID = 1;
+}
+
+message GetActiveCoursesForUserResponse {
+  repeated CourseShort courses = 1;
+}
+
+
+//message GetCourseProgressRequest {
+//
+//}
+//
+//message GetCourseProgressResponse {
+//
+//}
+
+
+message CreateCourseRequest {
+  CourseFull course = 1;
+}
+
+
+//message EditCourseRequest {
+//
+//}
+//
+//message EditCourseResponse {
+//
+//}
+
+
+message GetCourseInfoRequest {
+  string CourseUUID = 1;
+}
+
+message GetCourseInfoResponse {
+  CourseFull course = 1;
+}
+
+
+
+message GetAllPublicCoursesResponse {
+  repeated CourseShort courses = 1;
+}

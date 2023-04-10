@@ -20,8 +20,8 @@ loki:
     s3:
       endpoint: scholarlabs-loki.nyc3.digitaloceanspaces.com
       region: nyc3
-      secretAccessKey: 39X09hG5/LSuZF/7NvoIDOAAc2ctDPCeM+wSNQjNnjI
-      accessKeyId: DO00UCR87282YLF623DZ
+      secretAccessKey: bruh
+      accessKeyId: bruh
       s3ForcePathStyle: false
       insecure: false
 
