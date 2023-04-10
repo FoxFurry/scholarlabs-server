@@ -3,9 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/http"
 
-	"github.com/FoxFurry/scholarlabs/services/user/internal/httperr"
 	"github.com/FoxFurry/scholarlabs/services/user/internal/store"
 	"github.com/go-sql-driver/mysql"
 )
@@ -32,11 +30,11 @@ func handleDBError(err error, msg string) error {
 	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 		switch mysqlErr.Number {
 		case 1062:
-			return httperr.New(fmt.Sprintf("%s: entry already exists", msg), http.StatusBadRequest)
+			return fmt.Errorf("%s: entry already exists", msg)
 		case 1741:
-			return httperr.New(fmt.Sprintf("%s: key not found", msg), http.StatusNotFound)
+			return fmt.Errorf("%s: key not found", msg)
 		}
 	}
 	// TODO: Change in live environment
-	return httperr.New(fmt.Sprintf("%s: unknown internal error: %v", msg, err), http.StatusInternalServerError)
+	return fmt.Errorf("%s: unknown internal error: %v", msg, err)
 }
