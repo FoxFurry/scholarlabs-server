@@ -3,14 +3,18 @@
 build-all:
 	docker build -t foxfurry/scholarlabs-gateway -f ./services/gateway/Dockerfile .
 	docker build -t foxfurry/scholarlabs-user -f ./services/user/Dockerfile .
+	docker build -t foxfurry/scholarlabs-course -f ./services/course/Dockerfile .
 
 push-all:
 	docker push foxfurry/scholarlabs-gateway
 	docker push foxfurry/scholarlabs-user
+	docker push foxfurry/scholarlabs-course
 
 configmap-all:
 	$(MAKE) -C ./services/gateway configmap
 	$(MAKE) -C ./services/user configmap
+	$(MAKE) -C ./services/course configmap
+
 
 run-kube:
 	./scripts/run-kube.sh
