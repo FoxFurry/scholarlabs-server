@@ -36,7 +36,7 @@ var rootCmd = &cobra.Command{
 			log.WithError(err).Fatal("failed to parse environment variables")
 		}
 
-		database, err := store.NewDataStore(cfg)
+		database, err := store.NewDataStore(cfg, log)
 		if err != nil {
 			log.WithError(err).Fatal("failed to create datastore")
 		}
