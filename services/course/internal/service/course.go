@@ -2,43 +2,52 @@ package service
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/FoxFurry/scholarlabs/services/common/hash"
 	"github.com/FoxFurry/scholarlabs/services/course/internal/store"
 	"github.com/google/uuid"
 )
 
-func (p *service) CreateNewUser(ctx context.Context, u store.User) (*store.User, error) {
-	u.UUID = uuid.New().String()
-	hashedPassword, err := hash.NewPassword(u.Password)
-	if err != nil {
-		return nil, fmt.Errorf("could not hash password: %w", err)
+func (p *service) CreateCourse(ctx context.Context, c store.Course) (*store.Course, error) {
+	c.UUID = uuid.New().String()
+
+	if err := p.db.CreateCourse(ctx, c); err != nil {
+		return nil, handleDBError(err, "could not create course")
 	}
 
-	u.Password = hashedPassword
-
-	if err = p.db.CreateUser(ctx, u); err != nil {
-		return nil, handleDBError(err, "could not create user")
-	}
-
-	return &u, nil
+	return &c, nil
 }
 
-func (p *service) GetUserByEmail(ctx context.Context, email string) (*store.User, error) {
-	user, err := p.db.GetUserByEmail(ctx, email)
+func (p *service) GetAllPublicCourses(ctx context.Context) ([]store.Course, error) {
+	courses, err := p.db.GetPublicCourses(ctx)
 	if err != nil {
-		return nil, handleDBError(err, "could not get user by email")
+		return nil, err
 	}
 
-	return user, nil
+	return courses, nil
 }
 
-func (p *service) GetUserByUUID(ctx context.Context, userUUID string) (*store.User, error) {
-	user, err := p.db.GetUserByUUID(ctx, userUUID)
+func (p *service) GetEnrolledCoursesForUser(ctx context.Context, userUUID string) ([]store.Course, error) {
+	courses, err := p.db.GetEnrolledCoursesForUser(ctx, userUUID)
 	if err != nil {
-		return nil, handleDBError(err, "could not get user by uuid")
+		return nil, err
 	}
 
-	return user, nil
+	return courses, nil
+}
+
+func (p *service) GetCourseInfo(ctx context.Context, courseUUID string) (*store.Course, error) {
+	course, err := p.db.GetCourseByUUID(ctx, courseUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return course, nil
+}
+
+func (p *service) Enroll(ctx context.Context, userUUID, courseUUID string) error {
+	return p.db.Enroll(ctx, userUUID, courseUUID)
+}
+
+func (p *service) Unenroll(ctx context.Context, userUUID, courseUUID string) error {
+	return p.db.Unenroll(ctx, userUUID, courseUUID)
 }

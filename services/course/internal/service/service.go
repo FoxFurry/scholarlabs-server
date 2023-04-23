@@ -9,11 +9,16 @@ import (
 )
 
 type Service interface {
-	// User
+	// Course
+	Enroll(ctx context.Context, userUUID, courseUUID string) error
+	Unenroll(ctx context.Context, userUUID, courseUUID string) error
 
-	CreateNewUser(ctx context.Context, u store.User) (*store.User, error)
-	GetUserByEmail(ctx context.Context, mail string) (*store.User, error)
-	GetUserByUUID(ctx context.Context, userUUID string) (*store.User, error)
+	GetEnrolledCoursesForUser(ctx context.Context, userUUID string) ([]store.Course, error)
+
+	CreateCourse(ctx context.Context, c store.Course) (*store.Course, error)
+
+	GetCourseInfo(ctx context.Context, courseUUID string) (*store.Course, error)
+	GetAllPublicCourses(ctx context.Context) ([]store.Course, error)
 }
 
 type service struct {
