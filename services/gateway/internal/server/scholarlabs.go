@@ -1,44 +1,60 @@
 package server
 
 import (
+	course "github.com/FoxFurry/scholarlabs/services/course/proto"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/scholarlabs"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/util"
-	"github.com/FoxFurry/scholarlabs/services/user/proto"
+	user "github.com/FoxFurry/scholarlabs/services/user/proto"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type ScholarLabs struct {
-	service     scholarlabs.Service
-	gEng        *gin.Engine
-	jwt         util.JWTProvider
-	cfg         config.Config
-	userService proto.UserClient
-	lg          *logrus.Logger
+	service       scholarlabs.Service
+	gEng          *gin.Engine
+	jwt           util.JWTProvider
+	cfg           config.Config
+	userService   user.UserClient
+	courseService course.CoursesClient
+	lg            *logrus.Logger
 }
 
-func New(cfg config.Config, logger *logrus.Logger, userSrv proto.UserClient) (*ScholarLabs, error) {
+func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, courseSrv course.CoursesClient) (*ScholarLabs, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	ginEngine := gin.Default()
 
 	p := ScholarLabs{
-		service:     scholarlabs.New(),
-		gEng:        ginEngine,
-		jwt:         util.NewJWT(),
-		cfg:         cfg,
-		userService: userSrv,
-		lg:          logger,
+		service:       scholarlabs.New(),
+		gEng:          ginEngine,
+		jwt:           util.NewJWT(),
+		cfg:           cfg,
+		userService:   userSrv,
+		courseService: courseSrv,
+		lg:            logger,
 	}
+
+	withAuth := p.jwtMiddleware("bebra")
 
 	v1 := ginEngine.Group("/v1")
 	v1.Use(p.corsMiddleware)
 	{
-		user := v1.Group("/user")
+		userPath := v1.Group("/user")
 		{
-			user.POST("/register", p.Register)
-			user.POST("/login", p.Login)
+			userPath.POST("/register", p.Register)
+			userPath.POST("/login", p.Login)
+		}
+
+		coursePath := v1.Group("/course")
+		{
+			coursePath.GET("/", p.GetAllPublicCourses)
+			coursePath.GET("/mycourses", withAuth, p.GetEnrolledCoursesForUser)
+
+			coursePath.POST("/new", withAuth, p.CreateCourse)
+
+			coursePath.POST("/enroll", withAuth, p.Enroll)
+			coursePath.POST("/unenroll", withAuth, p.Unenroll)
 		}
 	}
 
