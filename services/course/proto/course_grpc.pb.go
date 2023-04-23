@@ -26,7 +26,7 @@ type CoursesClient interface {
 	// For users
 	Enroll(ctx context.Context, in *EnrollRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Unenroll(ctx context.Context, in *UnenrollRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetActiveCoursesForUser(ctx context.Context, in *GetActiveCoursesForUserRequest, opts ...grpc.CallOption) (*GetActiveCoursesForUserResponse, error)
+	GetEnrolledCoursesForUser(ctx context.Context, in *GetEnrolledCoursesForUserRequest, opts ...grpc.CallOption) (*GetEnrolledCoursesForUserResponse, error)
 	// For teachers
 	CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// General
@@ -60,9 +60,9 @@ func (c *coursesClient) Unenroll(ctx context.Context, in *UnenrollRequest, opts 
 	return out, nil
 }
 
-func (c *coursesClient) GetActiveCoursesForUser(ctx context.Context, in *GetActiveCoursesForUserRequest, opts ...grpc.CallOption) (*GetActiveCoursesForUserResponse, error) {
-	out := new(GetActiveCoursesForUserResponse)
-	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetActiveCoursesForUser", in, out, opts...)
+func (c *coursesClient) GetEnrolledCoursesForUser(ctx context.Context, in *GetEnrolledCoursesForUserRequest, opts ...grpc.CallOption) (*GetEnrolledCoursesForUserResponse, error) {
+	out := new(GetEnrolledCoursesForUserResponse)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetEnrolledCoursesForUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ type CoursesServer interface {
 	// For users
 	Enroll(context.Context, *EnrollRequest) (*emptypb.Empty, error)
 	Unenroll(context.Context, *UnenrollRequest) (*emptypb.Empty, error)
-	GetActiveCoursesForUser(context.Context, *GetActiveCoursesForUserRequest) (*GetActiveCoursesForUserResponse, error)
+	GetEnrolledCoursesForUser(context.Context, *GetEnrolledCoursesForUserRequest) (*GetEnrolledCoursesForUserResponse, error)
 	// For teachers
 	CreateCourse(context.Context, *CreateCourseRequest) (*emptypb.Empty, error)
 	// General
@@ -122,8 +122,8 @@ func (UnimplementedCoursesServer) Enroll(context.Context, *EnrollRequest) (*empt
 func (UnimplementedCoursesServer) Unenroll(context.Context, *UnenrollRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unenroll not implemented")
 }
-func (UnimplementedCoursesServer) GetActiveCoursesForUser(context.Context, *GetActiveCoursesForUserRequest) (*GetActiveCoursesForUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetActiveCoursesForUser not implemented")
+func (UnimplementedCoursesServer) GetEnrolledCoursesForUser(context.Context, *GetEnrolledCoursesForUserRequest) (*GetEnrolledCoursesForUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEnrolledCoursesForUser not implemented")
 }
 func (UnimplementedCoursesServer) CreateCourse(context.Context, *CreateCourseRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCourse not implemented")
@@ -183,20 +183,20 @@ func _Courses_Unenroll_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Courses_GetActiveCoursesForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetActiveCoursesForUserRequest)
+func _Courses_GetEnrolledCoursesForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnrolledCoursesForUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoursesServer).GetActiveCoursesForUser(ctx, in)
+		return srv.(CoursesServer).GetEnrolledCoursesForUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/scholarlabs.services.course.Courses/GetActiveCoursesForUser",
+		FullMethod: "/scholarlabs.services.course.Courses/GetEnrolledCoursesForUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoursesServer).GetActiveCoursesForUser(ctx, req.(*GetActiveCoursesForUserRequest))
+		return srv.(CoursesServer).GetEnrolledCoursesForUser(ctx, req.(*GetEnrolledCoursesForUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -271,8 +271,8 @@ var Courses_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Courses_Unenroll_Handler,
 		},
 		{
-			MethodName: "GetActiveCoursesForUser",
-			Handler:    _Courses_GetActiveCoursesForUser_Handler,
+			MethodName: "GetEnrolledCoursesForUser",
+			Handler:    _Courses_GetEnrolledCoursesForUser_Handler,
 		},
 		{
 			MethodName: "CreateCourse",

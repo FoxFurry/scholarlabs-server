@@ -12,7 +12,7 @@ service Courses {
   rpc Enroll(EnrollRequest) returns (google.protobuf.Empty) {}      // Takes user id and course id and enrolls them
   rpc Unenroll(UnenrollRequest) returns (google.protobuf.Empty) {}  // Takes user id and course id and unenrolls them
 
-  rpc GetActiveCoursesForUser(GetActiveCoursesForUserRequest) returns (GetActiveCoursesForUserResponse) {} // Get all courses user is enrolled to
+  rpc GetEnrolledCoursesForUser(GetEnrolledCoursesForUserRequest) returns (GetEnrolledCoursesForUserResponse) {} // Get all courses user is enrolled to
   // rpc GetCourseProgress(GetCourseProgressRequest) returns (GetCourseProgressResponse) {}
 
   // For teachers
@@ -29,6 +29,7 @@ message CourseShort {
   string AuthorUUID = 2;
   string Title = 3;
   string Description = 4;
+  string Thumbnail = 5;
 }
 
 message CourseFull {
@@ -51,11 +52,11 @@ message UnenrollRequest {
 
 
 
-message GetActiveCoursesForUserRequest {
+message GetEnrolledCoursesForUserRequest {
   string UserUUID = 1;
 }
 
-message GetActiveCoursesForUserResponse {
+message GetEnrolledCoursesForUserResponse {
   repeated CourseShort courses = 1;
 }
 
