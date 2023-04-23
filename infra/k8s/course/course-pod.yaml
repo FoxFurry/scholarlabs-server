@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: course-pod
+  namespace: scholarlabs
+  labels:
+    component: course
+spec:
+  containers:
+    - name: course
+      image: foxfurry/scholarlabs-course
+      envFrom:
+        - configMapRef:
+            name: scholarlabs-course-${COURSECONFIGHASH}
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 22001
