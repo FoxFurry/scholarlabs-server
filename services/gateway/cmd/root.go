@@ -7,6 +7,7 @@ import (
 	"os"
 
 	course "github.com/FoxFurry/scholarlabs/services/course/client"
+	environment "github.com/FoxFurry/scholarlabs/services/environment/client"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/server"
 	user "github.com/FoxFurry/scholarlabs/services/user/client"
@@ -41,7 +42,12 @@ var rootCmd = &cobra.Command{
 			log.WithError(err).Fatal("failed to connect to course service")
 		}
 
-		gateway, err := server.New(cfg, log, user, course)
+		environment, err := environment.NewEnvironmentClient(cfg.EnvironmentServiceBaseURL)
+		if err != nil {
+			log.WithError(err).Fatal("failed to connect to environment service")
+		}
+
+		gateway, err := server.New(cfg, log, user, course, environment)
 		if err != nil {
 			log.WithError(err).Fatal("failed to create a gateway server")
 		}

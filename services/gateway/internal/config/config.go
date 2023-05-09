@@ -7,5 +7,7 @@ type Config struct {
 
 	UserServiceBaseURL        string `env:"USER_BASE_URL" envDefault:"localhost:22000"`
 	CourseServiceBaseURL      string `env:"COURSE_BASE_URL" envDefault:"127.0.0.1:22001"`
-	MarketplaceServiceBaseURL string `env:"MARKETPLACE_BASE_URL" envDefault:"127.0.0.1:22002"`
+	EnvironmentServiceBaseURL string `env:"ENVIRONMENT_BASE_URL" envDefault:"127.0.0.1:22002"`
+
+	TokenSecret string `env:"TOKEN_SECRET"`
 }

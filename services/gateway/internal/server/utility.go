@@ -5,7 +5,6 @@ import (
 
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/httperr"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 // ------------------------------------VARIABLES------------------------------------
@@ -13,12 +12,12 @@ import (
 const (
 	authSchema  = "Bearer " // Space is required by auth header standard
 	uuidKey     = "uuid"
-	tokenIssuer = "scholarlabs_dev"
+	tokenIssuer = "scholarlabs"
 )
 
 // ------------------------------------MIDDLEWARES------------------------------------
 
-func (p *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
+func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 
@@ -28,8 +27,8 @@ func (p *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 		}
 
 		token := authHeader[len(authSchema):]
-		viper.GetString("")
-		uuid, err := p.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
+
+		uuid, err := s.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
 		if err != nil {
 			httperr.Handle(c, httperr.WrapHttp(err, "could not validate JWT token", http.StatusUnauthorized))
 			return
@@ -40,7 +39,7 @@ func (p *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 	}
 }
 
-func (p *ScholarLabs) corsMiddleware(c *gin.Context) {
+func (s *ScholarLabs) corsMiddleware(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Credentials", "true")
 	c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
@@ -56,7 +55,7 @@ func (p *ScholarLabs) corsMiddleware(c *gin.Context) {
 
 // ------------------------------------UTILITY FUNCS------------------------------------
 
-func (p *ScholarLabs) getUUIDFromContext(c *gin.Context) (string, error) {
+func (s *ScholarLabs) getUUIDFromContext(c *gin.Context) (string, error) {
 	userUUID := c.GetString(uuidKey)
 	if userUUID == "" {
 		return "", httperr.New("user uuid missing from context", http.StatusBadRequest)
