@@ -28,10 +28,9 @@ func (s *ScholarLabs) CreateEnvironment(ctx *gin.Context) {
 	}
 
 	if _, err = s.environmentService.CreateEnvironment(ctx, &proto.CreateEnvironmentRequest{
-		EnvIdentifier: env.EnvIdentifier,
-		Type:          env.Type,
+		PrototypeUUID: env.PrototypeUUID,
 		Name:          env.Name,
-		UserUUID:      userUUID,
+		OwnerUUID:     userUUID,
 	}); err != nil {
 		s.lg.WithError(err).Error("failed to create environment")
 		httperr.Handle(ctx, httperr.New("something went wrong", 500))
@@ -50,16 +49,13 @@ func (s *ScholarLabs) GetEnvironmentsForUser(ctx *gin.Context) {
 	}
 
 	envs, err := s.environmentService.GetEnvironmentsForUser(ctx, &proto.GetEnvironmentsForUserRequest{
-		UserUUID: userUUID,
+		OwnerUUID: userUUID,
 	})
 	if err != nil {
 		s.lg.WithError(err).Error("failed to get environments for user")
 		httperr.Handle(ctx, httperr.New("something went wrong", 500))
 		return
 	}
-
-	s.lg.Printf("With getter: %d", len(envs.GetEnvironments()))
-	s.lg.Printf("Without getter: %d", len(envs.Environments))
 
 	if len(envs.Environments) == 0 {
 		ctx.String(404, "no envs found")
@@ -69,17 +65,17 @@ func (s *ScholarLabs) GetEnvironmentsForUser(ctx *gin.Context) {
 	ctx.JSON(200, protoToModelEnvs(envs.Environments))
 }
 
-func protoToModelEnv(env *proto.Env) models.Environment {
+func protoToModelEnv(env *proto.EnvironmentShort) models.Environment {
 	var modelEnv models.Environment
 
-	modelEnv.EnvIdentifier = env.GetEnvIdentifier()
-	modelEnv.Type = env.GetType()
+	modelEnv.UUID = env.GetUUID()
+	modelEnv.OwnerUUID = env.GetOwnerUUID()
 	modelEnv.Name = env.GetName()
 
 	return modelEnv
 }
 
-func protoToModelEnvs(envs []*proto.Env) []models.Environment {
+func protoToModelEnvs(envs []*proto.EnvironmentShort) []models.Environment {
 	var modelEnvs = make([]models.Environment, 0, len(envs))
 
 	for _, env := range envs {

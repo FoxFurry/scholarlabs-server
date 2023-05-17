@@ -8,7 +8,7 @@ import (
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/scholarlabs"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/util"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -42,8 +42,17 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 
 	withAuth := p.jwtMiddleware(p.cfg.TokenSecret)
 
+	ginEngine.Use(cors.New(cors.Config{
+		AllowWebSockets:  true,
+		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "Accept"},
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+	}))
+
 	v1 := ginEngine.Group("/v1")
-	v1.Use(p.corsMiddleware)
 	{
 		userPath := v1.Group("/user")
 		{
@@ -53,7 +62,7 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 
 		coursePath := v1.Group("/course")
 		{
-			coursePath.GET("/", p.GetAllPublicCourses)
+			coursePath.GET("", p.GetAllPublicCourses)
 			coursePath.GET("/mycourses", withAuth, p.GetEnrolledCoursesForUser)
 
 			coursePath.POST("/new", withAuth, p.CreateCourse)
@@ -64,16 +73,26 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 
 		environmentsPath := v1.Group("/env")
 		{
-			environmentsPath.POST("/", withAuth, p.CreateEnvironment)
-			environmentsPath.GET("/", withAuth, p.GetEnvironmentsForUser)
+			environmentsPath.POST("", withAuth, p.CreateEnvironment)
+			environmentsPath.GET("", withAuth, p.GetEnvironmentsForUser)
+		}
+
+		terminalPath := v1.Group("/terminal")
+		{
+			terminalPath.GET("", p.BidirectionalTerminal)
+		}
+
+		prototypePaths := v1.Group("/prototype")
+		{
+			prototypePaths.GET("/", withAuth, p.GetPublicPrototypes)
 		}
 	}
 
 	return &p, nil
 }
 
-func (p *ScholarLabs) Run() {
-	if err := p.gEng.Run(p.cfg.Host); err != nil {
-		p.lg.Fatalf("failed to run http server: %v", err)
+func (s *ScholarLabs) Run() {
+	if err := s.gEng.Run(s.cfg.Host); err != nil {
+		s.lg.Fatalf("failed to run http server: %v", err)
 	}
 }

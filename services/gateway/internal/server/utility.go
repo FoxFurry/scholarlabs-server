@@ -19,38 +19,38 @@ const (
 
 func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-
-		if len(authHeader) <= len(authSchema) {
-			httperr.Handle(c, httperr.New("missing or invalid JWT token", http.StatusUnauthorized))
+		token, err := c.Cookie("X-Authorization")
+		if err != nil {
+			s.lg.WithError(err).Error("failed to get cookie")
+			httperr.Handle(c, httperr.WrapHttp(err, "missing or invalid cookie", http.StatusUnauthorized))
+			c.Abort()
 			return
 		}
+		s.lg.Info("token: ", token)
 
-		token := authHeader[len(authSchema):]
+		if token == "" {
+			s.lg.Info("token is empty")
+			httperr.Handle(c, httperr.New("missing or invalid cookie", http.StatusUnauthorized))
+			c.Abort()
+			return
+		}
 
 		uuid, err := s.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
 		if err != nil {
 			httperr.Handle(c, httperr.WrapHttp(err, "could not validate JWT token", http.StatusUnauthorized))
+			c.Abort()
+			return
+		}
+
+		if uuid == "" {
+			httperr.Handle(c, httperr.New("missing user uuid in JWT token", http.StatusUnauthorized))
+			c.Abort()
 			return
 		}
 
 		c.Set(uuidKey, uuid)
 		c.Next()
 	}
-}
-
-func (s *ScholarLabs) corsMiddleware(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Credentials", "true")
-	c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-	c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT")
-
-	if c.Request.Method == "OPTIONS" {
-		c.AbortWithStatus(204)
-		return
-	}
-
-	c.Next()
 }
 
 // ------------------------------------UTILITY FUNCS------------------------------------
