@@ -1,14 +1,20 @@
 package virt
 
 import (
+	"bufio"
 	"context"
-
-	"github.com/docker/docker/api/types"
+	"net"
 )
 
 type Details struct {
 	IsRunning bool
 	IP        string
+}
+
+type Terminal interface {
+	Close()
+	GetConn() net.Conn
+	GetReader() *bufio.Reader
 }
 
 type Engine interface {
@@ -18,5 +24,5 @@ type Engine interface {
 	Destroy(context.Context, string) error
 
 	GetDetails(context.Context, string) (*Details, error)
-	StartTerminal(context.Context, string) (*types.HijackedResponse, error)
+	StartTerminal(context.Context, string) (Terminal, error)
 }

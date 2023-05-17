@@ -17,7 +17,7 @@ func main() {
 		panic(err)
 	}
 
-	id, err := engine.Spin(ctx, "docker.io/library/alpine")
+	id, err := engine.Spin(ctx, "docker.io/library/alpine", "docker.io/library/alpine")
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("[OPENING SCANNER]")
 
-	scanner := bufio.NewScanner(con.Reader)
+	scanner := bufio.NewScanner(con.GetReader())
 	go func(sc *bufio.Scanner) {
 		for sc.Scan() {
 			fmt.Println("[OUT]:", sc.Text())
@@ -63,7 +63,7 @@ func main() {
 
 		fmt.Println("[IN]:", input)
 
-		if _, err := con.Conn.Write([]byte(input + "\n")); err != nil {
+		if _, err := con.GetConn().Write([]byte(input + "\n")); err != nil {
 			panic(err)
 		}
 	}

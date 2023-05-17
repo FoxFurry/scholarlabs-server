@@ -19,7 +19,7 @@ type docker struct {
 }
 
 func New(ctx context.Context) (virt.Engine, error) {
-	cli, err := client.NewClientWithOpts(client.WithHostFromEnv())
+	cli, err := client.NewClientWithOpts(client.WithHost("tcp://165.22.67.123:2375"))
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (d *docker) GetIdentifier(ctx context.Context) string {
 func (d *docker) Spin(ctx context.Context, refStr, imageIdentifier string) (string, error) {
 	pull, err := d.cli.ImagePull(ctx, refStr, types.ImagePullOptions{})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not pull image: %w", err)
 	}
 
 	defer func(pull io.ReadCloser) {
@@ -60,7 +60,7 @@ func (d *docker) Spin(ctx context.Context, refStr, imageIdentifier string) (stri
 		Cmd:   []string{"tail", "-f", "/dev/null"},
 	}, nil, nil, nil, "")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not create container: %w", err)
 	}
 
 	time.Sleep(5 * time.Second)
@@ -95,8 +95,8 @@ func (d *docker) GetDetails(ctx context.Context, machineIdentifier string) (*vir
 	return &virt.Details{}, nil
 }
 
-func (d *docker) StartTerminal(ctx context.Context, machineIdentifier string) (*types.HijackedResponse, error) {
-	create, err := d.cli.ContainerExecCreate(ctx, machineIdentifier, types.ExecConfig{
+func (d *docker) StartTerminal(ctx context.Context, machineIdentifier string) (virt.Terminal, error) {
+	execPoint, err := d.cli.ContainerExecCreate(ctx, machineIdentifier, types.ExecConfig{
 		AttachStderr: true,
 		AttachStdout: true,
 		AttachStdin:  true,
@@ -107,10 +107,12 @@ func (d *docker) StartTerminal(ctx context.Context, machineIdentifier string) (*
 		return nil, fmt.Errorf("failed to create exec point: %w", err)
 	}
 
-	terminalConnection, err := d.cli.ContainerExecAttach(ctx, create.ID, types.ExecStartCheck{})
+	terminalHijack, err := d.cli.ContainerExecAttach(ctx, execPoint.ID, types.ExecStartCheck{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to attach to the exec point: %w", err)
 	}
 
-	return &terminalConnection, nil
+	return &dockerTerminalAdapter{
+		term: &terminalHijack,
+	}, nil
 }
