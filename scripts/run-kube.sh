@@ -2,12 +2,14 @@
 GATEWAYCONFIGHASH=$(openssl dgst -sha256 -hex ./services/gateway/.env | awk '{print $2}')
 USERCONFIGHASH=$(openssl dgst -sha256 -hex ./services/user/.env | awk '{print $2}')
 COURSECONFIGHASH=$(openssl dgst -sha256 -hex ./services/course/.env | awk '{print $2}')
+ENVIRONMENTCONFIGHASH=$(openssl dgst -sha256 -hex ./services/environment/.env | awk '{print $2}')
 
 for f in $(find ./infra/k8s/ -name '*.yaml');
 do
   GATEWAYCONFIGHASH=${GATEWAYCONFIGHASH} \
   USERCONFIGHASH=${USERCONFIGHASH} \
   COURSECONFIGHASH=${COURSECONFIGHASH} \
+  ENVIRONMENTCONFIGHASH=${ENVIRONMENTCONFIGHASH} \
   envsubst < $f | kubectl apply -f -;
 done
 
