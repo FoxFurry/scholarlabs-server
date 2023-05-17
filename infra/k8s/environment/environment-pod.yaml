@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: environment-pod
+  namespace: scholarlabs
+  labels:
+    component: environment
+spec:
+  containers:
+    - name: environment
+      image: foxfurry/scholarlabs-environment
+      envFrom:
+        - configMapRef:
+            name: scholarlabs-environment-${ENVIRONMENTCONFIGHASH}
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 22002
