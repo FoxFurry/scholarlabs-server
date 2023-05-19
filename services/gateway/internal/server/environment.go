@@ -10,7 +10,7 @@ import (
 func (s *ScholarLabs) CreateEnvironment(ctx *gin.Context) {
 	var (
 		err      error
-		env      models.Environment
+		env      models.CreateEnvironmentRequest
 		userUUID string
 	)
 
@@ -37,7 +37,7 @@ func (s *ScholarLabs) CreateEnvironment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(200)
+	ctx.Status(201)
 }
 
 func (s *ScholarLabs) GetEnvironmentsForUser(ctx *gin.Context) {

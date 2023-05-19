@@ -1,20 +1,24 @@
 package server
 
 import (
+	"fmt"
+
 	course "github.com/FoxFurry/scholarlabs/services/course/proto"
 	environment "github.com/FoxFurry/scholarlabs/services/environment/proto"
 	user "github.com/FoxFurry/scholarlabs/services/user/proto"
 
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/config"
-	"github.com/FoxFurry/scholarlabs/services/gateway/internal/scholarlabs"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
+var (
+	errUserUUIDMissing = fmt.Errorf("user uuid missing from context")
+)
+
 type ScholarLabs struct {
-	service            scholarlabs.Service
 	gEng               *gin.Engine
 	jwt                util.JWTProvider
 	cfg                config.Config
@@ -30,7 +34,6 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 	ginEngine := gin.Default()
 
 	p := ScholarLabs{
-		service:            scholarlabs.New(),
 		gEng:               ginEngine,
 		jwt:                util.NewJWT(),
 		cfg:                cfg,

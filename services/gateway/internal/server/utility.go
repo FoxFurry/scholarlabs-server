@@ -1,16 +1,15 @@
 package server
 
 import (
-	"net/http"
-
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/httperr"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // ------------------------------------VARIABLES------------------------------------
 
 const (
-	authSchema  = "Bearer " // Space is required by auth header standard
+	contextKey  = "context"
 	uuidKey     = "uuid"
 	tokenIssuer = "scholarlabs"
 )
@@ -22,28 +21,27 @@ func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 		token, err := c.Cookie("X-Authorization")
 		if err != nil {
 			s.lg.WithError(err).Error("failed to get cookie")
-			httperr.Handle(c, httperr.WrapHttp(err, "missing or invalid cookie", http.StatusUnauthorized))
+			httperr.Handle(c, httperr.UnauthorizedError("missing or invalid cookie"))
 			c.Abort()
 			return
 		}
-		s.lg.Info("token: ", token)
 
 		if token == "" {
 			s.lg.Info("token is empty")
-			httperr.Handle(c, httperr.New("missing or invalid cookie", http.StatusUnauthorized))
+			httperr.Handle(c, httperr.UnauthorizedError("missing cookie"))
 			c.Abort()
 			return
 		}
 
 		uuid, err := s.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
 		if err != nil {
-			httperr.Handle(c, httperr.WrapHttp(err, "could not validate JWT token", http.StatusUnauthorized))
+			httperr.Handle(c, httperr.UnauthorizedError("could not validate JWT token"))
 			c.Abort()
 			return
 		}
 
 		if uuid == "" {
-			httperr.Handle(c, httperr.New("missing user uuid in JWT token", http.StatusUnauthorized))
+			httperr.Handle(c, httperr.UnauthorizedError("missing user uuid in JWT token"))
 			c.Abort()
 			return
 		}
@@ -53,12 +51,20 @@ func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 	}
 }
 
+func (s *ScholarLabs) setContext() func(*gin.Context) {
+	return func(c *gin.Context) {
+
+		c.Set(contextKey, uuid.New().String())
+		c.Next()
+	}
+}
+
 // ------------------------------------UTILITY FUNCS------------------------------------
 
 func (s *ScholarLabs) getUUIDFromContext(c *gin.Context) (string, error) {
 	userUUID := c.GetString(uuidKey)
 	if userUUID == "" {
-		return "", httperr.New("user uuid missing from context", http.StatusBadRequest)
+		return "", errUserUUIDMissing
 	}
 
 	return userUUID, nil
