@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package scholarlabs.services.environment;
+
+option go_package = "github.com/FoxFurry/scholarlabs/services/environment/proto";
+
+import "google/protobuf/empty.proto";
+
+
+service Environment {
+  rpc CreateEnvironment(CreateEnvironmentRequest) returns (google.protobuf.Empty) {}
+  rpc GetEnvironmentsForUser(GetEnvironmentsForUserRequest) returns (GetEnvironmentsForUserResponse) {}
+  rpc GetEnvironmentDetails(GetEnvironmentDetailsRequest) returns (GetEnvironmentDetailsResponse) {}
+
+  rpc GetPublicPrototypes(google.protobuf.Empty) returns (GetPublicPrototypesResponse) {}
+
+  rpc BidirectionalTerminal(stream BidirectionalTerminalRequest) returns (stream BidirectionalTerminalResponse) {}
+}
+
+
+// Prototype
+enum Engine {
+  UNKNOWN = 0;
+  CONTAINER = 1;
+  VIRTUAL_MACHINE = 2;
+}
+
+message PrototypeShort {
+  string UUID = 1;
+  string Name = 2;
+  string ShortDescription = 3;
+}
+
+message PrototypeFull {
+  PrototypeShort short = 1;
+  string FullDescription = 2;
+
+  Engine Engine = 3;
+  string EngineRef = 4;
+}
+
+
+// Environment
+message EnvironmentShort {
+  string UUID = 1;
+  string Name = 2;
+
+  string OwnerUUID = 3;
+  string PrototypeUUID = 4;
+}
+
+message EnvironmentFull {
+  EnvironmentShort short = 1;
+
+  string MachineUUID = 2;
+}
+
+
+// CreateEnvironment
+message CreateEnvironmentRequest {
+  string PrototypeUUID = 1;
+
+  string Name = 2;
+  string OwnerUUID = 3;
+}
+
+
+// GetEnvironmentsForUser
+message GetEnvironmentsForUserRequest {
+  string OwnerUUID = 1;
+}
+
+message GetEnvironmentsForUserResponse {
+  repeated EnvironmentShort Environments = 1;
+}
+
+
+// GetPublicPrototypes
+message GetPublicPrototypesResponse {
+  repeated PrototypeShort Prototypes = 1;
+}
+
+
+// BidirectionalTerminal
+message BidirectionalTerminalRequest {
+  string EnvironmentUUID = 1;
+  string Command = 2;
+}
+
+message BidirectionalTerminalResponse {
+  string Command = 1;
+}
+
+
+// GetEnvironmentDetails
+message GetEnvironmentDetailsRequest {
+  string EnvironmentUUID = 1;
+}
+
+message GetEnvironmentDetailsResponse {
+  EnvironmentFull Environment = 1;
+}
