@@ -64,3 +64,10 @@ func ValidationError(field, msg string) error {
 		statusCode: http.StatusBadRequest,
 	}
 }
+
+func UnauthorizedError(msg string) error {
+	return HttpErr{
+		message:    msg,
+		statusCode: http.StatusUnauthorized,
+	}
+}
