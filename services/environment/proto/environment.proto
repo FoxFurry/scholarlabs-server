@@ -15,6 +15,7 @@ service Environment {
   rpc GetPublicPrototypes(google.protobuf.Empty) returns (GetPublicPrototypesResponse) {}
 
   rpc BidirectionalTerminal(stream BidirectionalTerminalRequest) returns (stream BidirectionalTerminalResponse) {}
+  rpc CreateRoom(stream CreateRoomRequest) returns (stream CreateRoomResponse) {}
 }
 
 
@@ -99,4 +100,14 @@ message GetEnvironmentDetailsRequest {
 
 message GetEnvironmentDetailsResponse {
   EnvironmentFull Environment = 1;
+}
+
+
+// CreateRoom
+message CreateRoomRequest {
+  string EnvironmentUUID = 1;
+}
+
+message CreateRoomResponse {
+  string Room = 1;
 }

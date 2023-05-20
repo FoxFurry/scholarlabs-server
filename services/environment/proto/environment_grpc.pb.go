@@ -28,6 +28,7 @@ type EnvironmentClient interface {
 	GetEnvironmentDetails(ctx context.Context, in *GetEnvironmentDetailsRequest, opts ...grpc.CallOption) (*GetEnvironmentDetailsResponse, error)
 	GetPublicPrototypes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetPublicPrototypesResponse, error)
 	BidirectionalTerminal(ctx context.Context, opts ...grpc.CallOption) (Environment_BidirectionalTerminalClient, error)
+	CreateRoom(ctx context.Context, opts ...grpc.CallOption) (Environment_CreateRoomClient, error)
 }
 
 type environmentClient struct {
@@ -105,6 +106,37 @@ func (x *environmentBidirectionalTerminalClient) Recv() (*BidirectionalTerminalR
 	return m, nil
 }
 
+func (c *environmentClient) CreateRoom(ctx context.Context, opts ...grpc.CallOption) (Environment_CreateRoomClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Environment_ServiceDesc.Streams[1], "/scholarlabs.services.environment.Environment/CreateRoom", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &environmentCreateRoomClient{stream}
+	return x, nil
+}
+
+type Environment_CreateRoomClient interface {
+	Send(*CreateRoomRequest) error
+	Recv() (*CreateRoomResponse, error)
+	grpc.ClientStream
+}
+
+type environmentCreateRoomClient struct {
+	grpc.ClientStream
+}
+
+func (x *environmentCreateRoomClient) Send(m *CreateRoomRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *environmentCreateRoomClient) Recv() (*CreateRoomResponse, error) {
+	m := new(CreateRoomResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // EnvironmentServer is the server API for Environment service.
 // All implementations must embed UnimplementedEnvironmentServer
 // for forward compatibility
@@ -114,6 +146,7 @@ type EnvironmentServer interface {
 	GetEnvironmentDetails(context.Context, *GetEnvironmentDetailsRequest) (*GetEnvironmentDetailsResponse, error)
 	GetPublicPrototypes(context.Context, *emptypb.Empty) (*GetPublicPrototypesResponse, error)
 	BidirectionalTerminal(Environment_BidirectionalTerminalServer) error
+	CreateRoom(Environment_CreateRoomServer) error
 	mustEmbedUnimplementedEnvironmentServer()
 }
 
@@ -135,6 +168,9 @@ func (UnimplementedEnvironmentServer) GetPublicPrototypes(context.Context, *empt
 }
 func (UnimplementedEnvironmentServer) BidirectionalTerminal(Environment_BidirectionalTerminalServer) error {
 	return status.Errorf(codes.Unimplemented, "method BidirectionalTerminal not implemented")
+}
+func (UnimplementedEnvironmentServer) CreateRoom(Environment_CreateRoomServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateRoom not implemented")
 }
 func (UnimplementedEnvironmentServer) mustEmbedUnimplementedEnvironmentServer() {}
 
@@ -247,6 +283,32 @@ func (x *environmentBidirectionalTerminalServer) Recv() (*BidirectionalTerminalR
 	return m, nil
 }
 
+func _Environment_CreateRoom_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(EnvironmentServer).CreateRoom(&environmentCreateRoomServer{stream})
+}
+
+type Environment_CreateRoomServer interface {
+	Send(*CreateRoomResponse) error
+	Recv() (*CreateRoomRequest, error)
+	grpc.ServerStream
+}
+
+type environmentCreateRoomServer struct {
+	grpc.ServerStream
+}
+
+func (x *environmentCreateRoomServer) Send(m *CreateRoomResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *environmentCreateRoomServer) Recv() (*CreateRoomRequest, error) {
+	m := new(CreateRoomRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // Environment_ServiceDesc is the grpc.ServiceDesc for Environment service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -275,6 +337,12 @@ var Environment_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "BidirectionalTerminal",
 			Handler:       _Environment_BidirectionalTerminal_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "CreateRoom",
+			Handler:       _Environment_CreateRoom_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
