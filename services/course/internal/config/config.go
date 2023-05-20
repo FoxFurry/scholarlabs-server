@@ -9,7 +9,7 @@ type Config struct {
 	DBUser string `env:"DB_USER" envDefault:"scholarlabs"`
 	DBName string `env:"DB_NAME" envDefault:"scholarlabs"`
 
-	Host string `env:"HOST" envDefault:"0.0.0.0:22001"`
+	Host string `env:"HOST" envDefault:"0.0.0.0:22003"`
 
 	TokenSecret string `env:"TOKEN_SECRET"`
 }
