@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/FoxFurry/scholarlabs/services/environment/internal/store"
 	"github.com/FoxFurry/scholarlabs/virt"
@@ -20,7 +21,11 @@ func (s *service) CreateEnvironment(ctx context.Context, c store.Environment) (*
 		return nil, err
 	}
 
-	machineUUID, err := targetEngine.Spin(ctx, prototype.EngineRef, prototype.EngineRef)
+	machineUUID, err := targetEngine.Spin(ctx, virt.PrototypeData{
+		EngineRef: prototype.EngineRef,
+		Env:       strings.Split(prototype.Env, " "),
+		Cmd:       nil,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("could not spin environment: %w", err)
 	}
