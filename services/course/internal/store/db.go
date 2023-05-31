@@ -14,19 +14,29 @@ import (
 type DataStore interface {
 
 	// Course
-	CreateCourse(ctx context.Context, course Course) error
+	CreateCourse(context.Context, Course) error
 
-	GetCourseByUUID(ctx context.Context, uuid string) (*Course, error)
-	GetPublicCourses(ctx context.Context) ([]Course, error)
-	GetEnrolledCoursesForUser(ctx context.Context, userUUID string) ([]Course, error)
+	GetCourseByUUID(context.Context, string) (*Course, error)
+	GetPublicCourses(context.Context) ([]Course, error)
+	GetEnrolledCoursesForUser(context.Context, string) ([]Course, error)
 
 	// Enrolls
 
-	Enroll(ctx context.Context, userUUID, courseUUID string) error
-	Unenroll(ctx context.Context, userUUID, courseUUID string) error
+	Enroll(context.Context, string, string) error
+	Unenroll(context.Context, string, string) error
+
+	// Page
+	CreatePage(context.Context, Page) error
+	DeletePage(context.Context, string, string) error
+	GetPageByID(context.Context, string, string) (*Page, error)
+	GetCourseToC(context.Context, string) ([]PageIdentifier, error)
+	GetNumberOfPagesForCourse(context.Context, string) (int, error)
+	//
+	GetAssignmentsProgressForUser(context.Context, string, string) ([]AssignmentProgress, error)
+	StartAssignment(context.Context, string, string, string) error
+	IsAssignmentStarted(context.Context, string, string, string) (bool, error)
 
 	// DB
-
 	GetDB() *sqlx.DB
 }
 
