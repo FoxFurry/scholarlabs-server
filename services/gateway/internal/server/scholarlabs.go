@@ -66,12 +66,20 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 		coursePath := v1.Group("/course")
 		{
 			coursePath.GET("", p.GetAllPublicCourses)
+
 			coursePath.GET("/mycourses", withAuth, p.GetEnrolledCoursesForUser)
 
 			coursePath.POST("/new", withAuth, p.CreateCourse)
 
-			coursePath.POST("/enroll", withAuth, p.Enroll)
-			coursePath.POST("/unenroll", withAuth, p.Unenroll)
+			coursePath.GET("/:courseUUID/toc", withAuth, p.GetCourseToC)
+			coursePath.POST("/:courseUUID/enroll", withAuth, p.Enroll)
+			coursePath.POST("/:courseUUID/unenroll", withAuth, p.Unenroll)
+
+			pagePath := coursePath.Group("/:courseUUID/page")
+			{
+				pagePath.GET("/:pageID", withAuth, p.GetPage)
+				pagePath.POST("", withAuth, p.CreatePage)
+			}
 		}
 
 		environmentsPath := v1.Group("/env")
@@ -89,6 +97,7 @@ func New(cfg config.Config, logger *logrus.Logger, userSrv user.UserClient, cour
 		{
 			prototypePaths.GET("/", withAuth, p.GetPublicPrototypes)
 		}
+
 	}
 
 	return &p, nil

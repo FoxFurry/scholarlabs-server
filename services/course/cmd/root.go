@@ -41,7 +41,19 @@ var rootCmd = &cobra.Command{
 			log.WithError(err).Fatal("failed to create datastore")
 		}
 
-		course, err := server.New(cfg, database, log)
+		//s3Config := &aws.Config{
+		//	Credentials:      credentials.NewStaticCredentials(cfg.SpacesKey, cfg.SpacesSec, ""),
+		//	Endpoint:         aws.String("https://nyc3.digitaloceanspaces.com"),
+		//	Region:           aws.String("us-east-1"),
+		//	S3ForcePathStyle: aws.Bool(false),
+		//}
+		//
+		//newSession, err := session.NewSession(s3Config)
+		//if err != nil {
+		//	log.WithError(err).Fatal("failed to create new bucket session")
+		//}
+
+		course, err := server.New(cfg, database, nil, log) // s3.New(newSession)
 		if err != nil {
 			log.WithError(err).Fatal("failed to create a course server")
 		}

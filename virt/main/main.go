@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/FoxFurry/scholarlabs/virt"
 	"github.com/FoxFurry/scholarlabs/virt/docker"
 )
 
@@ -17,7 +19,11 @@ func main() {
 		panic(err)
 	}
 
-	id, err := engine.Spin(ctx, "docker.io/library/alpine", "docker.io/library/alpine")
+	id, err := engine.Spin(ctx, virt.PrototypeData{
+		EngineRef: "mcr.microsoft.com/mssql/server",
+		Env:       []string{"MSSQL_SA_PASSWORD=Test_123", "ACCEPT_EULA=Y"},
+		Cmd:       nil,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -26,7 +32,9 @@ func main() {
 
 	fmt.Println("[STARTING TERMINAL]")
 
-	con, err := engine.StartTerminal(ctx, id)
+	time.Sleep(20 * time.Second)
+
+	con, err := engine.StartTerminal(ctx, id, []string{"/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "SA", "-P", "Test_123"}) //  -S localhost -U sa -P test
 	if err != nil {
 		panic(err)
 	}
