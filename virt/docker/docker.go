@@ -19,7 +19,7 @@ type docker struct {
 }
 
 func New(ctx context.Context) (virt.Engine, error) {
-	cli, err := client.NewClientWithOpts(client.WithHost("tcp://165.22.67.123:2375"))
+	cli, err := client.NewClientWithOpts(client.WithHost("tcp://165.22.23.225:2375")) // client.WithHost("tcp://165.22.67.123:2375")
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (d *docker) GetIdentifier(ctx context.Context) string {
 	return identity
 }
 
-func (d *docker) Spin(ctx context.Context, refStr, imageIdentifier string) (string, error) {
-	pull, err := d.cli.ImagePull(ctx, refStr, types.ImagePullOptions{})
+func (d *docker) Spin(ctx context.Context, data virt.PrototypeData) (string, error) {
+	pull, err := d.cli.ImagePull(ctx, data.EngineRef, types.ImagePullOptions{})
 	if err != nil {
 		return "", fmt.Errorf("could not pull image: %w", err)
 	}
@@ -56,8 +56,9 @@ func (d *docker) Spin(ctx context.Context, refStr, imageIdentifier string) (stri
 	}(pull)
 
 	resp, err := d.cli.ContainerCreate(ctx, &container.Config{
-		Image: imageIdentifier,
-		Cmd:   []string{"tail", "-f", "/dev/null"},
+		Image: data.EngineRef,
+		Cmd:   data.Cmd,
+		Env:   data.Env,
 	}, nil, nil, nil, "")
 	if err != nil {
 		return "", fmt.Errorf("could not create container: %w", err)
@@ -95,13 +96,13 @@ func (d *docker) GetDetails(ctx context.Context, machineIdentifier string) (*vir
 	return &virt.Details{}, nil
 }
 
-func (d *docker) StartTerminal(ctx context.Context, machineIdentifier string) (virt.Terminal, error) {
+func (d *docker) StartTerminal(ctx context.Context, machineIdentifier string, execCmd []string) (virt.Terminal, error) {
 	execPoint, err := d.cli.ContainerExecCreate(ctx, machineIdentifier, types.ExecConfig{
 		AttachStderr: true,
 		AttachStdout: true,
 		AttachStdin:  true,
 		Tty:          false,
-		Cmd:          []string{"/bin/sh"},
+		Cmd:          execCmd,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create exec point: %w", err)

@@ -11,6 +11,12 @@ type Details struct {
 	IP        string
 }
 
+type PrototypeData struct {
+	EngineRef string
+	Env       []string
+	Cmd       []string
+}
+
 type Terminal interface {
 	Close()
 	GetConn() net.Conn
@@ -20,9 +26,9 @@ type Terminal interface {
 type Engine interface {
 	GetIdentifier(context.Context) string
 
-	Spin(context.Context, string, string) (string, error)
+	Spin(context.Context, PrototypeData) (string, error)
 	Destroy(context.Context, string) error
 
 	GetDetails(context.Context, string) (*Details, error)
-	StartTerminal(context.Context, string) (Terminal, error)
+	StartTerminal(context.Context, string, []string) (Terminal, error)
 }
