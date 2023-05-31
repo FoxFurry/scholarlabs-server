@@ -8,26 +8,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (p *ScholarLabs) Enroll(ctx context.Context, req *proto.EnrollRequest) (*emptypb.Empty, error) {
-	err := p.service.Enroll(ctx, req.UserUUID, req.CourseUUID)
-	if err != nil {
-		p.lg.WithError(err).WithField("req", req).Error("failed to enroll")
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
-
-func (p *ScholarLabs) Unenroll(ctx context.Context, req *proto.UnenrollRequest) (*emptypb.Empty, error) {
-	err := p.service.Unenroll(ctx, req.UserUUID, req.CourseUUID)
-	if err != nil {
-		p.lg.WithError(err).WithField("req", req).Error("failed to unenroll")
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
-
 func (p *ScholarLabs) GetEnrolledCoursesForUser(ctx context.Context, req *proto.GetEnrolledCoursesForUserRequest) (*proto.GetEnrolledCoursesForUserResponse, error) {
 	courses, err := p.service.GetEnrolledCoursesForUser(ctx, req.UserUUID)
 	if err != nil {
@@ -40,31 +20,22 @@ func (p *ScholarLabs) GetEnrolledCoursesForUser(ctx context.Context, req *proto.
 	}, nil
 }
 
-func (p *ScholarLabs) CreateCourse(ctx context.Context, req *proto.CreateCourseRequest) (*emptypb.Empty, error) {
-	if _, err := p.service.CreateCourse(ctx, store.Course{
-		AuthorUUID:  req.GetCourse().GetMetadata().AuthorUUID,
-		Title:       req.GetCourse().GetMetadata().Title,
-		Description: req.GetCourse().GetMetadata().Description,
-		Text:        req.GetCourse().GetText(),
-	}); err != nil {
-		p.lg.WithError(err).WithField("req", req).Error("failed to create a course")
-
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
-
-func (p *ScholarLabs) GetCourseInfo(ctx context.Context, req *proto.GetCourseInfoRequest) (*proto.GetCourseInfoResponse, error) {
-	course, err := p.service.GetCourseInfo(ctx, req.CourseUUID)
+func (p *ScholarLabs) CreateCourse(ctx context.Context, req *proto.CreateCourseRequest) (*proto.CreateCourseResponse, error) {
+	uuid, err := p.service.CreateCourse(ctx, store.Course{
+		AuthorUUID:  req.GetAuthorUUID(),
+		Title:       req.GetTitle(),
+		Description: req.GetDescription(),
+	},
+		req.GetThumbnail(),
+		req.GetBackground(),
+	)
 	if err != nil {
-		p.lg.WithError(err).WithField("req", req).Error("failed to enroll")
-
+		p.lg.WithError(err).WithField("req", req).Error("failed to create a course")
 		return nil, err
 	}
 
-	return &proto.GetCourseInfoResponse{
-		Course: courseToFullCourse(*course),
+	return &proto.CreateCourseResponse{
+		UUID: uuid,
 	}, nil
 }
 
@@ -72,7 +43,6 @@ func (p *ScholarLabs) GetAllPublicCourses(ctx context.Context, _ *emptypb.Empty)
 	courses, err := p.service.GetAllPublicCourses(ctx)
 	if err != nil {
 		p.lg.WithError(err).Error("failed to get all public courses")
-
 		return nil, err
 	}
 
@@ -81,9 +51,21 @@ func (p *ScholarLabs) GetAllPublicCourses(ctx context.Context, _ *emptypb.Empty)
 	}, nil
 }
 
-func coursesToCoursesShort(courses []store.Course) []*proto.CourseShort {
+func (p *ScholarLabs) GetCourseSummary(ctx context.Context, req *proto.GetCourseSummaryRequest) (*proto.GetCourseSummaryResponse, error) {
+	course, err := p.service.GetCourseInfo(ctx, req.GetCourseUUID())
+	if err != nil {
+		p.lg.WithError(err).Error("failed to get course summary")
+		return nil, err
+	}
+
+	return &proto.GetCourseSummaryResponse{
+		Course: courseToFullCourse(*course),
+	}, nil
+}
+
+func coursesToCoursesShort(courses []store.Course) []*proto.CourseMetadata {
 	var (
-		shortCourses []*proto.CourseShort
+		shortCourses []*proto.CourseMetadata
 	)
 
 	for _, course := range courses {
@@ -93,11 +75,11 @@ func coursesToCoursesShort(courses []store.Course) []*proto.CourseShort {
 	return shortCourses
 }
 
-func courseToShortCourse(course store.Course) *proto.CourseShort {
-	var shortCourse = new(proto.CourseShort)
+func courseToShortCourse(course store.Course) *proto.CourseMetadata {
+	var shortCourse = new(proto.CourseMetadata)
 
 	shortCourse.Title = course.Title
-	shortCourse.Description = course.Description
+	shortCourse.ShortDescription = course.ShortDescription
 	shortCourse.UUID = course.UUID
 	shortCourse.AuthorUUID = course.AuthorUUID
 	shortCourse.Thumbnail = course.Thumbnail
@@ -105,12 +87,12 @@ func courseToShortCourse(course store.Course) *proto.CourseShort {
 	return shortCourse
 }
 
-func courseToFullCourse(course store.Course) *proto.CourseFull {
-	var fullCourse = new(proto.CourseFull)
+func courseToFullCourse(course store.Course) *proto.Course {
+	var fullCourse = new(proto.Course)
 
 	fullCourse.Metadata = courseToShortCourse(course)
-
-	fullCourse.Text = course.Text
+	fullCourse.Background = course.Background
+	fullCourse.Description = course.Description
 
 	return fullCourse
 }

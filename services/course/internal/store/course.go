@@ -6,27 +6,36 @@ import (
 )
 
 type Course struct {
-	ID          uint64
-	UUID        string
-	AuthorUUID  string
-	Title       string
-	Description string
-	Thumbnail   string
-
-	Text string
+	ID               uint64
+	UUID             string
+	AuthorUUID       string `db:"author_uuid"`
+	Title            string
+	ShortDescription string `db:"short_description"`
+	Description      string
+	Thumbnail        string
+	Background       string
 
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
+type CourseDashboard struct {
+	Course
+
+	AssignmentsProgress []struct {
+		AssignmentUUID string `db:"assignment_uuid"`
+	}
+}
+
 func (d *store) CreateCourse(ctx context.Context, course Course) error {
-	_, err := d.sql.ExecContext(ctx, `INSERT INTO courses (uuid, author_uuid, title, description, thumbnail, text) VALUES (?, ?, ?, ?, ?, ?)`,
+	_, err := d.sql.ExecContext(ctx, `INSERT INTO courses (uuid, author_uuid, title, short_description, description, thumbnail, background) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		course.UUID,
 		course.AuthorUUID,
 		course.Title,
+		course.ShortDescription,
 		course.Description,
 		course.Thumbnail,
-		course.Text,
+		course.Background,
 	)
 	return err
 }
@@ -60,13 +69,15 @@ func (d *store) GetPublicCourses(ctx context.Context) ([]Course, error) {
 			&buffer.UUID,
 			&buffer.AuthorUUID,
 			&buffer.Title,
+			&buffer.ShortDescription,
 			&buffer.Description,
 			&buffer.Thumbnail,
-			&buffer.Text,
+			&buffer.Background,
 			&buffer.CreatedAt,
 			&buffer.UpdatedAt,
 		); err != nil {
 			d.lg.WithError(err).Error("failed to read course from db")
+			return nil, err
 		}
 
 		courses = append(courses, buffer)
@@ -76,12 +87,14 @@ func (d *store) GetPublicCourses(ctx context.Context) ([]Course, error) {
 }
 
 func (d *store) GetEnrolledCoursesForUser(ctx context.Context, userUUID string) ([]Course, error) {
-	rows, err := d.sql.QueryContext(ctx, `SELECT uuid, author_uuid, title, description, thumbnail FROM courses INNER JOIN enrolls ON enrolls.course_uuid = uuid WHERE enrolls.user_uuid = ?`,
+	rows, err := d.sql.QueryContext(ctx, `SELECT uuid, author_uuid, title, short_description, thumbnail FROM courses INNER JOIN enrolls ON enrolls.course_uuid = uuid WHERE enrolls.user_uuid = ?`,
 		userUUID,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	defer rows.Close()
 
 	var (
 		courses []Course
@@ -90,14 +103,11 @@ func (d *store) GetEnrolledCoursesForUser(ctx context.Context, userUUID string) 
 
 	for rows.Next() {
 		if err := rows.Scan(
-			&buffer.ID,
 			&buffer.UUID,
 			&buffer.AuthorUUID,
 			&buffer.Title,
-			&buffer.Description,
+			&buffer.ShortDescription,
 			&buffer.Thumbnail,
-			&buffer.CreatedAt,
-			&buffer.UpdatedAt,
 		); err != nil {
 			d.lg.WithError(err).Error("failed to read course from db")
 		}
@@ -106,20 +116,4 @@ func (d *store) GetEnrolledCoursesForUser(ctx context.Context, userUUID string) 
 	}
 
 	return courses, nil
-}
-
-func (d *store) Enroll(ctx context.Context, userUUID, courseUUID string) error {
-	_, err := d.sql.ExecContext(ctx, `INSERT INTO enrolls (user_uuid, course_uuid) VALUES (?, ?)`,
-		userUUID,
-		courseUUID,
-	)
-	return err
-}
-
-func (d *store) Unenroll(ctx context.Context, userUUID, courseUUID string) error {
-	_, err := d.sql.ExecContext(ctx, `DELETE FROM enrolls WHERE user_uuid=? and course_uuid=?`,
-		userUUID,
-		courseUUID,
-	)
-	return err
 }
