@@ -3,9 +3,10 @@ CREATE TABLE IF NOT EXISTS courses (
     uuid VARCHAR(255) UNIQUE NOT NULL,
     author_uuid VARCHAR(255) NOT NULL,
     title VARCHAR(255) UNIQUE NOT NULL,
+    short_description TEXT NOT NULL,
     description VARCHAR(255) NOT NULL,
-
-    text LONGTEXT NOT NULL,
+    thumbnail TEXT NOT NULL,
+    background TEXT,
 
     FOREIGN KEY (author_uuid) REFERENCES users (uuid),
 
