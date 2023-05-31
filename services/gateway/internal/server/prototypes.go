@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/FoxFurry/scholarlabs/services/environment/proto"
+	"github.com/FoxFurry/scholarlabs/services/gateway/internal/httperr"
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/models"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -10,6 +11,8 @@ import (
 func (s *ScholarLabs) GetPublicPrototypes(ctx *gin.Context) {
 	prototypesResponse, err := s.environmentService.GetPublicPrototypes(ctx, &emptypb.Empty{})
 	if err != nil {
+		s.lg.WithError(err).Error("failed to get public prototypes")
+		httperr.Handle(ctx, httperr.New("bad request", 400))
 		return
 	}
 

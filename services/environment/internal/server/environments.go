@@ -14,7 +14,7 @@ func (p *ScholarLabsEnvironment) CreateEnvironment(ctx context.Context, req *pro
 		OwnerUUID:     req.GetOwnerUUID(),
 		PrototypeUUID: req.GetPrototypeUUID(),
 	}); err != nil {
-		p.lg.WithError(err).WithField("req", req).Error("failed to create a course")
+		p.lg.WithError(err).WithField("req", req).Error("failed to create an environment")
 		return nil, err
 	}
 
