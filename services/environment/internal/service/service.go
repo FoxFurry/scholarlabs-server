@@ -21,10 +21,10 @@ type Service interface {
 	GetPublicPrototypes(context.Context) ([]store.PrototypeShort, error)
 	GetPrototypeByUUID(context.Context, string) (*store.PrototypeFull, error)
 
-	BidirectionalTerminal(ctx context.Context, engine, termRef string) (virt.Terminal, error)
+	BidirectionalTerminal(context.Context, string, string, []string) (virt.Terminal, error)
 
-	CreateRoom(ctx context.Context, environmentUUID string) (string, error)
-	ResolveRoom(ctx context.Context, room string) (string, error)
+	CreateRoom(context.Context, string) (string, error)
+	ResolveRoom(context.Context, string) (string, error)
 }
 
 type service struct {

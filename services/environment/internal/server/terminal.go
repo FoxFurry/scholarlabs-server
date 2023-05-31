@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/FoxFurry/scholarlabs/services/environment/proto"
 	"github.com/FoxFurry/scholarlabs/virt"
@@ -45,7 +46,7 @@ func (p *ScholarLabsEnvironment) BidirectionalTerminal(stream proto.Environment_
 		return fmt.Errorf("failed to get prototype: %w", err)
 	}
 
-	terminalInstance, err := p.service.BidirectionalTerminal(ctx, prototype.Engine, env.MachineUUID)
+	terminalInstance, err := p.service.BidirectionalTerminal(ctx, prototype.Engine, env.MachineUUID, strings.Split(prototype.Cmd, " "))
 	if err != nil {
 		p.lg.WithError(err).WithField("msg", message).Error("failed to create terminal instance")
 		return fmt.Errorf("failed to create terminal instance: %w", err)
