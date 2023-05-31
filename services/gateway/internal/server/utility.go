@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/FoxFurry/scholarlabs/services/gateway/internal/httperr"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -9,6 +11,7 @@ import (
 // ------------------------------------VARIABLES------------------------------------
 
 const (
+	authSchema  = "Bearer " // Space is required by auth header standard
 	contextKey  = "context"
 	uuidKey     = "uuid"
 	tokenIssuer = "scholarlabs"
@@ -18,13 +21,15 @@ const (
 
 func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 	return func(c *gin.Context) {
-		token, err := c.Cookie("X-Authorization")
-		if err != nil {
-			s.lg.WithError(err).Error("failed to get cookie")
-			httperr.Handle(c, httperr.UnauthorizedError("missing or invalid cookie"))
+		authHeader := c.GetHeader("Authorization")
+
+		if len(authHeader) <= len(authSchema) {
+			httperr.Handle(c, httperr.New("missing or invalid JWT token", http.StatusUnauthorized))
 			c.Abort()
 			return
 		}
+
+		token := authHeader[len(authSchema):]
 
 		if token == "" {
 			s.lg.Info("token is empty")
@@ -33,20 +38,20 @@ func (s *ScholarLabs) jwtMiddleware(tokenSecret string) func(*gin.Context) {
 			return
 		}
 
-		uuid, err := s.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
+		userUUID, err := s.jwt.ValidateToken(token, tokenIssuer, []byte(tokenSecret))
 		if err != nil {
 			httperr.Handle(c, httperr.UnauthorizedError("could not validate JWT token"))
 			c.Abort()
 			return
 		}
 
-		if uuid == "" {
+		if userUUID == "" {
 			httperr.Handle(c, httperr.UnauthorizedError("missing user uuid in JWT token"))
 			c.Abort()
 			return
 		}
 
-		c.Set(uuidKey, uuid)
+		c.Set(uuidKey, userUUID)
 		c.Next()
 	}
 }
