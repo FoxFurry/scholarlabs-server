@@ -11,5 +11,8 @@ type Config struct {
 
 	Host string `env:"HOST" envDefault:"0.0.0.0:22001"`
 
+	SpacesKey string `env:"SPACES_KEY"`
+	SpacesSec string `env:"SPACES_SEC"`
+
 	TokenSecret string `env:"TOKEN_SECRET"`
 }
