@@ -28,10 +28,16 @@ type CoursesClient interface {
 	Unenroll(ctx context.Context, in *UnenrollRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetEnrolledCoursesForUser(ctx context.Context, in *GetEnrolledCoursesForUserRequest, opts ...grpc.CallOption) (*GetEnrolledCoursesForUserResponse, error)
 	// For teachers
-	CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// General
-	GetCourseInfo(ctx context.Context, in *GetCourseInfoRequest, opts ...grpc.CallOption) (*GetCourseInfoResponse, error)
+	CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*CreateCourseResponse, error)
+	// For course
+	GetCourseToC(ctx context.Context, in *GetCourseToCRequest, opts ...grpc.CallOption) (*GetCourseToCResponse, error)
+	GetCourseSummary(ctx context.Context, in *GetCourseSummaryRequest, opts ...grpc.CallOption) (*GetCourseSummaryResponse, error)
+	GetCourseDashboard(ctx context.Context, in *GetCourseDashboardRequest, opts ...grpc.CallOption) (*GetCourseDashboardResponse, error)
 	GetAllPublicCourses(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllPublicCoursesResponse, error)
+	// For page
+	GetPage(ctx context.Context, in *GetPageRequest, opts ...grpc.CallOption) (*GetPageResponse, error)
+	CreatePage(ctx context.Context, in *CreatePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type coursesClient struct {
@@ -69,8 +75,8 @@ func (c *coursesClient) GetEnrolledCoursesForUser(ctx context.Context, in *GetEn
 	return out, nil
 }
 
-func (c *coursesClient) CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *coursesClient) CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*CreateCourseResponse, error) {
+	out := new(CreateCourseResponse)
 	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/CreateCourse", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -78,9 +84,27 @@ func (c *coursesClient) CreateCourse(ctx context.Context, in *CreateCourseReques
 	return out, nil
 }
 
-func (c *coursesClient) GetCourseInfo(ctx context.Context, in *GetCourseInfoRequest, opts ...grpc.CallOption) (*GetCourseInfoResponse, error) {
-	out := new(GetCourseInfoResponse)
-	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetCourseInfo", in, out, opts...)
+func (c *coursesClient) GetCourseToC(ctx context.Context, in *GetCourseToCRequest, opts ...grpc.CallOption) (*GetCourseToCResponse, error) {
+	out := new(GetCourseToCResponse)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetCourseToC", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coursesClient) GetCourseSummary(ctx context.Context, in *GetCourseSummaryRequest, opts ...grpc.CallOption) (*GetCourseSummaryResponse, error) {
+	out := new(GetCourseSummaryResponse)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetCourseSummary", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coursesClient) GetCourseDashboard(ctx context.Context, in *GetCourseDashboardRequest, opts ...grpc.CallOption) (*GetCourseDashboardResponse, error) {
+	out := new(GetCourseDashboardResponse)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetCourseDashboard", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +120,33 @@ func (c *coursesClient) GetAllPublicCourses(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
+func (c *coursesClient) GetPage(ctx context.Context, in *GetPageRequest, opts ...grpc.CallOption) (*GetPageResponse, error) {
+	out := new(GetPageResponse)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/GetPage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coursesClient) CreatePage(ctx context.Context, in *CreatePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/CreatePage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coursesClient) DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/scholarlabs.services.course.Courses/DeletePage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoursesServer is the server API for Courses service.
 // All implementations must embed UnimplementedCoursesServer
 // for forward compatibility
@@ -105,10 +156,16 @@ type CoursesServer interface {
 	Unenroll(context.Context, *UnenrollRequest) (*emptypb.Empty, error)
 	GetEnrolledCoursesForUser(context.Context, *GetEnrolledCoursesForUserRequest) (*GetEnrolledCoursesForUserResponse, error)
 	// For teachers
-	CreateCourse(context.Context, *CreateCourseRequest) (*emptypb.Empty, error)
-	// General
-	GetCourseInfo(context.Context, *GetCourseInfoRequest) (*GetCourseInfoResponse, error)
+	CreateCourse(context.Context, *CreateCourseRequest) (*CreateCourseResponse, error)
+	// For course
+	GetCourseToC(context.Context, *GetCourseToCRequest) (*GetCourseToCResponse, error)
+	GetCourseSummary(context.Context, *GetCourseSummaryRequest) (*GetCourseSummaryResponse, error)
+	GetCourseDashboard(context.Context, *GetCourseDashboardRequest) (*GetCourseDashboardResponse, error)
 	GetAllPublicCourses(context.Context, *emptypb.Empty) (*GetAllPublicCoursesResponse, error)
+	// For page
+	GetPage(context.Context, *GetPageRequest) (*GetPageResponse, error)
+	CreatePage(context.Context, *CreatePageRequest) (*emptypb.Empty, error)
+	DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCoursesServer()
 }
 
@@ -125,14 +182,29 @@ func (UnimplementedCoursesServer) Unenroll(context.Context, *UnenrollRequest) (*
 func (UnimplementedCoursesServer) GetEnrolledCoursesForUser(context.Context, *GetEnrolledCoursesForUserRequest) (*GetEnrolledCoursesForUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnrolledCoursesForUser not implemented")
 }
-func (UnimplementedCoursesServer) CreateCourse(context.Context, *CreateCourseRequest) (*emptypb.Empty, error) {
+func (UnimplementedCoursesServer) CreateCourse(context.Context, *CreateCourseRequest) (*CreateCourseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCourse not implemented")
 }
-func (UnimplementedCoursesServer) GetCourseInfo(context.Context, *GetCourseInfoRequest) (*GetCourseInfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCourseInfo not implemented")
+func (UnimplementedCoursesServer) GetCourseToC(context.Context, *GetCourseToCRequest) (*GetCourseToCResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCourseToC not implemented")
+}
+func (UnimplementedCoursesServer) GetCourseSummary(context.Context, *GetCourseSummaryRequest) (*GetCourseSummaryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCourseSummary not implemented")
+}
+func (UnimplementedCoursesServer) GetCourseDashboard(context.Context, *GetCourseDashboardRequest) (*GetCourseDashboardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCourseDashboard not implemented")
 }
 func (UnimplementedCoursesServer) GetAllPublicCourses(context.Context, *emptypb.Empty) (*GetAllPublicCoursesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPublicCourses not implemented")
+}
+func (UnimplementedCoursesServer) GetPage(context.Context, *GetPageRequest) (*GetPageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPage not implemented")
+}
+func (UnimplementedCoursesServer) CreatePage(context.Context, *CreatePageRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePage not implemented")
+}
+func (UnimplementedCoursesServer) DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePage not implemented")
 }
 func (UnimplementedCoursesServer) mustEmbedUnimplementedCoursesServer() {}
 
@@ -219,20 +291,56 @@ func _Courses_CreateCourse_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Courses_GetCourseInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCourseInfoRequest)
+func _Courses_GetCourseToC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCourseToCRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoursesServer).GetCourseInfo(ctx, in)
+		return srv.(CoursesServer).GetCourseToC(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/scholarlabs.services.course.Courses/GetCourseInfo",
+		FullMethod: "/scholarlabs.services.course.Courses/GetCourseToC",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoursesServer).GetCourseInfo(ctx, req.(*GetCourseInfoRequest))
+		return srv.(CoursesServer).GetCourseToC(ctx, req.(*GetCourseToCRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Courses_GetCourseSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCourseSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoursesServer).GetCourseSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/scholarlabs.services.course.Courses/GetCourseSummary",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoursesServer).GetCourseSummary(ctx, req.(*GetCourseSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Courses_GetCourseDashboard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCourseDashboardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoursesServer).GetCourseDashboard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/scholarlabs.services.course.Courses/GetCourseDashboard",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoursesServer).GetCourseDashboard(ctx, req.(*GetCourseDashboardRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -251,6 +359,60 @@ func _Courses_GetAllPublicCourses_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoursesServer).GetAllPublicCourses(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Courses_GetPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoursesServer).GetPage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/scholarlabs.services.course.Courses/GetPage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoursesServer).GetPage(ctx, req.(*GetPageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Courses_CreatePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoursesServer).CreatePage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/scholarlabs.services.course.Courses/CreatePage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoursesServer).CreatePage(ctx, req.(*CreatePageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Courses_DeletePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoursesServer).DeletePage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/scholarlabs.services.course.Courses/DeletePage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoursesServer).DeletePage(ctx, req.(*DeletePageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -279,12 +441,32 @@ var Courses_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Courses_CreateCourse_Handler,
 		},
 		{
-			MethodName: "GetCourseInfo",
-			Handler:    _Courses_GetCourseInfo_Handler,
+			MethodName: "GetCourseToC",
+			Handler:    _Courses_GetCourseToC_Handler,
+		},
+		{
+			MethodName: "GetCourseSummary",
+			Handler:    _Courses_GetCourseSummary_Handler,
+		},
+		{
+			MethodName: "GetCourseDashboard",
+			Handler:    _Courses_GetCourseDashboard_Handler,
 		},
 		{
 			MethodName: "GetAllPublicCourses",
 			Handler:    _Courses_GetAllPublicCourses_Handler,
+		},
+		{
+			MethodName: "GetPage",
+			Handler:    _Courses_GetPage_Handler,
+		},
+		{
+			MethodName: "CreatePage",
+			Handler:    _Courses_CreatePage_Handler,
+		},
+		{
+			MethodName: "DeletePage",
+			Handler:    _Courses_DeletePage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

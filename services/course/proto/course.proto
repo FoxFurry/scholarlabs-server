@@ -16,25 +16,54 @@ service Courses {
   // rpc GetCourseProgress(GetCourseProgressRequest) returns (GetCourseProgressResponse) {}
 
   // For teachers
-  rpc CreateCourse(CreateCourseRequest) returns (google.protobuf.Empty) {} // Create a course
+  rpc CreateCourse(CreateCourseRequest) returns (CreateCourseResponse) {} // Create a course
   // rpc EditCourse(EditCourseRequest) returns (EditCourseResponse) {}     // Edit a course (idempotent, like PUT in REST)
 
-  // General
-  rpc GetCourseInfo(GetCourseInfoRequest) returns (GetCourseInfoResponse) {} // Get generic course info (material, list of assignments and so on)
-  rpc GetAllPublicCourses(google.protobuf.Empty) returns (GetAllPublicCoursesResponse) {}
+  // For course
+  rpc GetCourseToC(GetCourseToCRequest) returns (GetCourseToCResponse) {} // Get table of contents (list of lessons
+  rpc GetCourseSummary(GetCourseSummaryRequest) returns (GetCourseSummaryResponse) {} // Get page (lesson or assignment
+  rpc GetCourseDashboard(GetCourseDashboardRequest) returns (GetCourseDashboardResponse) {} // Get generic course info (material, list of assignments and so on)
+  rpc GetAllPublicCourses(google.protobuf.Empty) returns (GetAllPublicCoursesResponse) {} // Get all public courses
+
+  // For page
+  rpc GetPage(GetPageRequest) returns (GetPageResponse) {} // Get page (lesson or assignment)
+  rpc CreatePage(CreatePageRequest) returns (google.protobuf.Empty) {} // Create page (lesson or assignment)
+  rpc DeletePage(DeletePageRequest) returns (google.protobuf.Empty) {} // Delete page (lesson or assignment)
 }
 
-message CourseShort {
+enum PageType {
+  Unknown = 0;
+  LESSON = 1;
+  ASSIGNMENT = 2;
+}
+
+message AssignmentProgress {
+  string UUID = 1;
+  string AssignmentUUID = 2;
+  string UserUUID = 3;
+  string EnvironmentUUID = 4;
+  uint64 Grade = 5;
+}
+
+message PageMetadata {
+  uint64 ID = 1;
+  string Title = 2;
+  PageType Type = 3;
+}
+
+
+message CourseMetadata {
   string UUID = 1;
   string AuthorUUID = 2;
   string Title = 3;
-  string Description = 4;
+  string ShortDescription = 4;
   string Thumbnail = 5;
 }
 
-message CourseFull {
-  CourseShort metadata = 1;
-  string Text = 2;
+message Course {
+  CourseMetadata metadata = 1;
+  string Description = 2;
+  string Background = 3;
 }
 
 
@@ -43,13 +72,10 @@ message EnrollRequest {
   string CourseUUID = 2;
 }
 
-
-
 message UnenrollRequest {
   string UserUUID = 1;
   string CourseUUID = 2;
 }
-
 
 
 message GetEnrolledCoursesForUserRequest {
@@ -57,7 +83,7 @@ message GetEnrolledCoursesForUserRequest {
 }
 
 message GetEnrolledCoursesForUserResponse {
-  repeated CourseShort courses = 1;
+  repeated CourseMetadata courses = 1;
 }
 
 
@@ -71,9 +97,18 @@ message GetEnrolledCoursesForUserResponse {
 
 
 message CreateCourseRequest {
-  CourseFull course = 1;
+  string UUID = 1;
+  string AuthorUUID = 2;
+  string Title = 3;
+  string ShortDescription = 4;
+  string Description = 5;
+  bytes Thumbnail = 6;
+  bytes Background = 7;
 }
 
+message CreateCourseResponse {
+  string UUID = 1;
+}
 
 //message EditCourseRequest {
 //
@@ -84,16 +119,60 @@ message CreateCourseRequest {
 //}
 
 
-message GetCourseInfoRequest {
+message GetCourseDashboardRequest {
   string CourseUUID = 1;
 }
 
-message GetCourseInfoResponse {
-  CourseFull course = 1;
+message GetCourseDashboardResponse {
+  Course Course = 1;
+  uint64 Progress = 2;
+  repeated AssignmentProgress Assignments = 3;
 }
 
 
-
 message GetAllPublicCoursesResponse {
-  repeated CourseShort courses = 1;
+  repeated CourseMetadata courses = 1;
+}
+
+
+message GetCourseToCRequest {
+  string CourseUUID = 1;
+}
+
+message GetCourseToCResponse {
+  repeated PageMetadata pages = 1;
+}
+
+
+message GetCourseSummaryRequest {
+  string CourseUUID = 1;
+  string PageID = 2;
+}
+
+message GetCourseSummaryResponse {
+  Course course = 1;
+}
+
+
+message GetPageRequest {
+  string CourseUUID = 1;
+  string PageID = 2;
+}
+
+message GetPageResponse {
+  PageMetadata Metadata = 1;
+  bytes Data = 2;
+}
+
+
+message CreatePageRequest {
+  string CourseUUID = 1;
+  string Title = 2;
+  PageType Type = 3;
+  bytes Data = 4;
+}
+
+message DeletePageRequest {
+  string CourseUUID = 1;
+  string PageID = 2;
 }
