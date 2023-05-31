@@ -1,15 +1,15 @@
 package models
 
-type CourseShort struct {
-	UUID        string `json:"uuid"`
-	AuthorUUID  string `json:"author_uuid"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Thumbnail   string `json:"thumbnail"`
+type Course struct {
+	UUID             string `json:"uuid"`
+	AuthorUUID       string `json:"author_uuid"`
+	Title            string `json:"title"`
+	ShortDescription string `json:"short_description,omitempty"`
+	Description      string `json:"description,omitempty"`
+	Thumbnail        string `json:"thumbnail,omitempty"`
+	Background       string `json:"background,omitempty"`
 }
 
-type CourseFull struct {
-	CourseShort
-
-	Text string `json:"text"`
+type CourseToC struct {
+	Toc []PageMetadata `json:"toc"`
 }
